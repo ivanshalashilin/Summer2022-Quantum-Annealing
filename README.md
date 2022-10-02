@@ -29,8 +29,6 @@ Data for the plots can be found at [this dropbox]()
 
 # open systems
 
-ran out of time :(
-
 - a few trial runs with HOQST `OpenQuatnumTools.jl`, mostly edits to [An Intro to HOQST - Lindblad equation](https://uscqserver.github.io/HOQSTTutorials.jl/html/introduction/02-lindblad_equation.html)
 - Guide to code follows [HOQST docs](https://docs.juliahub.com/OpenQuantumTools/iRrSZ/0.6.2/index.html)
 
