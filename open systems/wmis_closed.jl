@@ -1,17 +1,3 @@
-# using OpenQuantumTools, OrdinaryDiffEq, Plots
-# # define the Hamiltonian
-# H = DenseHamiltonian([(s)->1.0], [σz], unit=:ħ)
-# # define the initial state
-# u0 = PauliVec[1][1]*PauliVec[1][1]'
-# # define the Lindblad operator
-# # the rate and Lindblad operator can also be time-dependent functions
-# lind = Lindblad(0.1, σz)
-# # combine them into an Annealing object
-# annealing = Annealing(H, u0, interactions = InteractionSet(lind))
-
-# σz
-
-
 using OpenQuantumTools, OrdinaryDiffEq, Plots, JLD2
 
 

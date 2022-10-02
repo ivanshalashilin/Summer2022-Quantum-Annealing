@@ -1,6 +1,7 @@
 from operator import index
 import sys
-sys.path.append('/Users/ivanshalashilin/Desktop/UCL Placement /research placement/classes')
+#append to classes directory
+sys.path.append('dir here')
 from matplotlib import pyplot as plt
 from cmath import sqrt
 from hamv2 import wmis
@@ -145,11 +146,13 @@ def build_initial_state(Hd):
 
 def TTS(p,p_d,anneal_time):
     '''
+    can be computed using final and initial probabilities
     p - probability of success
     p_d - desired probability
     T - anneal time for one run
     '''
     return np.log(1-p_d)/np.log(1-p) * anneal_time
+
 
 #input to qutip
 def d_coeff(t,params): 

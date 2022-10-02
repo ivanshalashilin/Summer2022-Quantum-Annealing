@@ -17,7 +17,6 @@ hzs = [(nb*Jzz - 2*k*(W+dW)/na) , (na*Jzz - 2*k*W/nb)]
 
 H_p = Escale * (4.8*σz⊗σi⊗σi + 9.6*σi⊗σz⊗σi + 4.82*σi⊗σi⊗σz + 6.4*σz⊗σz⊗σi + 6.4*σi⊗σz⊗σz)
 
-
 H_d = -standard_driver(3) 
 
 #H_c = Jxx * σi⊗σi⊗σi⊗σx⊗σx

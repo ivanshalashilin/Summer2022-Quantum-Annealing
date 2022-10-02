@@ -1,5 +1,6 @@
 import sys
-sys.path.append('/Users/ivanshalashilin/Desktop/UCL Placement /research placement/classes')
+#append to classes directory
+sys.path.append('dir here')
 from hamv2 import wmis
 from hamv2 import ham
 from bacon import bacon

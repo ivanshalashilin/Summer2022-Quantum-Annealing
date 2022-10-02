@@ -1,5 +1,6 @@
 import sys
-sys.path.append('/Users/ivanshalashilin/Desktop/UCL Placement /git repo/repo/classes')
+#append to classes directory
+sys.path.append('dir here')
 from matplotlib import pyplot as plt
 from cmath import sqrt
 from hamv2 import wmis

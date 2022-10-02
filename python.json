@@ -1,0 +1,113 @@
+{
+	// Place your snippets for python here. Each snippet is defined under a snippet name and has a prefix, body and 
+	// description. The prefix is what is used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. Placeholders with the 
+	// same ids are connected.
+	// Example:
+	// "Print to console": {
+	// 	"prefix": "log",
+	// 	"body": [
+	// 		"console.log('$1');",
+	// 		"$2"
+	// 	],
+	// 	"description": "Log output to console"
+	// }
+
+	"dyn_plot": {
+		"prefix": "dyn_plot",
+		"body": [
+		"def dyn_plot_( self, states, n=1, savefig = False, name = None):",
+		"    fig, ax = plt.subplots(1,1)",
+		"    if savefig == True:",
+		"        ham.__save_fig(name)",
+		"    plt.show()",
+	],
+	},
+
+	"data_read": {
+		"prefix": "data_read",
+		"body": [
+			"#redirect",
+			"import os",
+			"os.chdir('$1')",
+			"#reading data",
+			"pickle_in = open('$2.pkl', 'rb')",
+			"data = pickle.load(pickle_in)",
+	],
+	},
+
+	"data_write": {
+		"prefix": "data_write",
+		"body": [
+			"#redirect",
+			"import os",
+			"os.chdir('$1')",
+			"#writing data",
+			"data=[$2]",
+			"pickle_out = open('$3.pkl', 'wb')",
+			"pickle.dump(data, pickle_out)",
+			"pickle_out.close()",
+	],
+	},
+
+	"twin_ax":{
+		"prefix": "twin_ax",
+		"body": [
+			"#make figure",
+			"fig, ax = plt.subplots(1,1)",
+			"title = ",
+			"ax.set_title(')",
+			"ax.set_ylabel('')",
+			"ax.set_xlabel('')",
+			"ax.plot(x, y, '--', color = 'purple', label = 'maximum overlap')",
+			"ax.tick_params(axis='y', labelcolor='red')",
+			"#form second axes",
+			"ax2 = ax.twinx()",
+			"ax2.plot(x2, y2, color = 'green', label = '$J_{xx}$ strength')",
+			"ax2.set_ylabel('')",
+			"ax2.tick_params(axis='y', labelcolor='green')",
+			"fig.legend(bbox_to_anchor=(0.89,0.29))",
+			"plt.show()",
+			"#plt.savefig('.png', dpi = 600)",
+	],
+	},
+
+	"pretty_ax":{
+		"prefix": "pretty_ax",
+		"body": [
+			"#make figure",
+			"fig, ax = plt.subplots(1,1, figsize =(10,6)",
+			"ax.set_title('$1', size = 15)",
+			"ax.set_ylabel('$2', size = 15)",
+			"ax.set_xlabel('$3', size = 15)",
+			"ax.tick_params(labelsize = 20)",
+			"ax.plot($4, $5, color = 'red', label = '')",
+			"ax.tick_params(axis='y', labelcolor='red')",
+			"fig.legend(bbox_to_anchor=(0.89,0.29))",
+			"ax.legend(title = '', prop={'size': 8})",
+			"#plt.savefig('.png', dpi = 600)",
+			"plt.show()",
+	],
+	},
+
+	"legend_varsize":{
+		"prefix": "legend_varsize",
+		"body": [
+			"ax.legend(title = '', prop={'size': 8})"
+	],
+	},
+
+	"subplots_configured":{
+		"prefix": "subplots_configured",
+		"body": [
+			"fig, ax = plt.subplots(1,4, figsize=(10, 5), sharey = True)",
+			"fig.add_subplot(111, frameon=False)",
+			"fig.tight_layout(pad=0.5)",
+			"plt.tick_params(labelcolor='none', which='both', top=False, bottom=False, left=False, right=False)",
+			"plt.xlabel(\"xlabel\")",
+			"plt.ylabel(\"ylabel\")",
+			"''' ax[0].plot() here'''",
+			"plt.show()",
+		]
+	},
+}
