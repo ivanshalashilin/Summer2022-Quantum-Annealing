@@ -1,9 +1,8 @@
 import sys
-#append to classes directory
-sys.path.append('dir here')
+sys.path.append('./')
 from matplotlib import pyplot as plt
 from cmath import sqrt
-from hamv2 import wmis
+from classes.hamv2 import wmis
 import numpy as np
 import qutip as qt
 from numpy.linalg import eigh
@@ -43,13 +42,13 @@ ax.set_xlabel('Anneal Time (ns)', size = 20)
 ax.tick_params(labelsize = 20)
 plt.subplots_adjust(bottom=0.15)
 ax.plot(data[1], gs_prob[:,0], color = 'purple' , label = '$%.2f$' % data[0][0], lw = 2, zorder = 100)
-ax.plot(data[1], gs_prob[:,1], color = '#808080', label = '$%.2f$' % data[0][1], lw = 2)
-ax.plot(data[1], gs_prob[:,2], color = '#808090', label = '$%.2f$' % data[0][2], lw = 2)
-ax.plot(data[1], gs_prob[:,3], color = '#8080a0', label = '$%.2f$' % data[0][3], lw = 2)
+ax.plot(data[1], gs_prob[:,1], color = 'green', label = '$%.2f$' % data[0][1], lw = 2)
+ax.plot(data[1], gs_prob[:,2], color = 'blue', label = '$%.2f$' % data[0][2], lw = 2)
+ax.plot(data[1], gs_prob[:,3], color = 'orange', label = '$%.2f$' % data[0][3], lw = 2)
 ax.plot(data[1], gs_prob[:,4], color = 'red'   , label = '$%.2f$' % data[0][4], lw = 2, zorder = 101)
 fig.legend(title = '$J_{xx}$', prop={'size': 8},bbox_to_anchor=(0.89,0.47))
 #plt.savefig('Different Catalysts 10000.png', dpi = 600)#, bbox_inches='tight')
-#plt.show()
+plt.show()
 
 from scipy.optimize import curve_fit
 
@@ -77,14 +76,13 @@ ax.tick_params(labelsize = 20)
 ax.plot(data[0], freqs*1000/(2*np.pi), 'o', ms = 10, color = 'red')
 plt.subplots_adjust(bottom=0.15)
 #ax.tick_params(axis='y', labelcolor='red')
-plt.savefig('omega100.png', dpi = 100)
+#plt.savefig('omega100.png', dpi = 100)
 plt.show()
-
 
 
 #redirect
 import os
-os.chdir('/Users/ivanshalashilin/Desktop/UCL Placement /research placement/wmis/2djxx/assets')
+os.chdir('/Users/ivanshalashilin/Desktop/Documents/UCL Placement /research placement/wmis/2djxx/assets')
 #reading data
 pickle_in = open('Jxx_2_3_1_100.pkl', 'rb')
 data = pickle.load(pickle_in)

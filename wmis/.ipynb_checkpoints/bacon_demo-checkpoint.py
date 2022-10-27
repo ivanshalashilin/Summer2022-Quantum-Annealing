@@ -1,8 +1,9 @@
 import sys
-sys.path.append('./')
-from classes.hamv2 import wmis
-from classes.hamv2 import ham
-from classes.bacon import bacon
+#append to classes directory
+sys.path.append('dir here')
+from hamv2 import wmis
+from hamv2 import ham
+from bacon import bacon
 import qutip as qt
 import numpy as np
 import matplotlib.pyplot as plt

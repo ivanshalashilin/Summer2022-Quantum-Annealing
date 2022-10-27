@@ -1,9 +1,10 @@
 import sys
 #append to classes directory
-sys.path.append('dir here')
+import sys
+sys.path.append('./')
 from matplotlib import pyplot as plt
 from cmath import sqrt
-from hamv2 import wmis
+from classes.hamv2 import wmis
 import numpy as np
 import qutip as qt
 from numpy.linalg import eigh
