@@ -140,7 +140,7 @@ class ParentHam:
         n - number of energy levels plotted, ascending from lowest
         '''
         fig, ax = plt.subplots(1,1, figsize=(10, 6))
-        fig.canvas.set_window_title('static eigenvalues')
+        #fig.canvas.set_window_title('static eigenvalues')
         if plot == True:
             ax.set_title('Eigenvalues')
             ax.set_xlabel("Anneal Time")
@@ -148,7 +148,7 @@ class ParentHam:
         label = self._label_states()
         evals = np.array(evals)
         for j in range(0, n):
-            ax.legend(prop={'size': 8}) 
+            #ax.legend(prop={'size': 8}) 
             ax.plot(self._s, evals[:,j], label = label)
         if savefig == True:
             self.__save_fig(name)
@@ -162,7 +162,7 @@ class ParentHam:
         '''
         if plot == True:
             fig, ax = plt.subplots(1,1, figsize=(10, 6))
-            fig.canvas.set_window_title('Static Eigenvalues')
+            #fig.canvas.set_window_title('Static Eigenvalues')
             ax.set_title('Energy Spectrum')
             ax.set_xlabel("$s$")
             ax.set_ylabel("$\Delta E$")
@@ -182,7 +182,7 @@ class ParentHam:
         if savefig == True:
             self.__save_fig(name)
         if plot == True:
-            ax.legend(prop={'size': 8})
+            #ax.legend(prop={'size': 8})
             plt.show()
         return DeltaE_all
 
@@ -397,7 +397,7 @@ class wmisReport(wmis):
         Hs = self._evolving_Ham()
         if plot == True:
             fig, ax = plt.subplots(1,1, figsize=(6, 8))
-            fig.canvas.set_window_title('continuous overlap')
+            #fig.canvas.set_window_title('continuous overlap')
             ax.set_xlabel('Anneal Time (ns)', size = 14)
             ax.set_ylabel('Overlap Value', size = 14)
             ax.grid(linestyle='-', linewidth=1)
@@ -422,3 +422,4 @@ class wmisReport(wmis):
             if savefig == True: 
                 self.__save_fig(name)
         return overlaps
+

@@ -27,8 +27,8 @@ from matplotlib import cm
 # data = np.append(data0, data1)
 
 
-import os
-os.chdir('/Users/ivanshalashilin/Desktop/UCL Placement /research placement/')
+# import os
+# os.chdir('/Users/ivanshalashilin/Desktop/UCL Placement /research placement/')
 #reading data
 pickle_in = open('2d_s_2_3__t_1e-1_10000__j_175e-2_20e-1.pkl', 'rb')
 data = pickle.load(pickle_in)
