@@ -75,8 +75,8 @@ for i in range(5):
             # kwargs
             xlabel="$X = s-s_0$",
             ylabel="$E$",
-            xlim= [-0.001, 0.001],
-            ylim = [-0.05,0.05]
+            xlim=[-0.001, 0.001],
+            ylim=[-0.05, 0.05],
         )
         extra = "_mini"
         plt.savefig(f"{filepath}spectrum_{catalyst_strengths[i]}_noshift{extra}.pdf")
@@ -93,10 +93,10 @@ for i in range(5):
             # kwargs
             xlabel="$X = s-s_0$",
             ylabel="$E-\\bar{E}$",
-            xlim =[-0.04, 0.04],
-            ylim =[-0.04, 0.04]
+            xlim=[-0.04, 0.04],
+            ylim=[-0.04, 0.04],
         )
-        
+
         extra = "_mini"
 
         plt.savefig(f"{filepath}spectrum_{catalyst_strengths[i]}_avg{extra}.pdf")
@@ -112,8 +112,8 @@ for i in range(5):
             shift,
             xlabel="$X = s-s_0$",
             ylabel="$E-\\bar{E}$",
-            xlim = [-0.023,0.023],
-            ylim = [-0.003, 0.055]
+            xlim=[-0.023, 0.023],
+            ylim=[-0.003, 0.055],
         )
         extra = "_mini"
         plt.savefig(f"{filepath}spectrum_{catalyst_strengths[i]}_floor{extra}.pdf")
@@ -123,16 +123,15 @@ for i in range(5):
         shift = energies_shifted[1]
         fig, ax = plt.subplots(1, 1)
         plot_spectrum_shifted(
-            ax, 
-            plot_dict, 
-            labels_dict, 
-            shift, 
-            xlabel="$X = s-s_0$", 
+            ax,
+            plot_dict,
+            labels_dict,
+            shift,
+            xlabel="$X = s-s_0$",
             ylabel="$E-E_1$",
-            xlim = [-0.023,0.023],
-            ylim = [-0.055, 0.003]
-            )
-
+            xlim=[-0.023, 0.023],
+            ylim=[-0.055, 0.003],
+        )
 
         extra = "_mini"
         plt.savefig(f"{filepath}spectrum_{catalyst_strengths[i]}_ceiling{extra}.pdf")
@@ -174,7 +173,7 @@ if plot_lz_flag:
 
         ax.plot(t_anneal, probability_meas, color=cols[i], lw=1)
         ax.plot(t_anneal, probability_theory, "-", color=cols[i], alpha=0.8, lw=1)
-    ax.set(xlabel="Ground state fidelity", ylabel="Anneal time")
+    ax.set(xlabel="Anneal time", ylabel="Ground state fidelity")
     ax.grid()
     plt.savefig(f"{filepath}5spin_lz_fidelity.pdf")
     plt.show()
