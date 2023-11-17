@@ -1,6 +1,7 @@
 import sys
 
 sys.path.append("./")
+from tqdm import tqdm
 from classes.hamv2 import wmis
 from classes.hamv2 import ham
 from classes.bacon import bacon
@@ -27,9 +28,9 @@ demo of custom hamiltonians with bacon class
 """
 
 
-def H_catalyst_LZ(catalyst_strength):
+def H_catalyst_LZ(N, catalyst_strength):
     return catalyst_strength * qt.tensor(
-        qt.qeye(2), qt.qeye(2), qt.qeye(2), qt.sigmax(), qt.sigmax()
+        *[qt.qeye(2) for i in range(N-2)], qt.sigmax(), qt.sigmax()
     )
 
 
@@ -119,14 +120,13 @@ def centre_energies(energies):
     return [energies[0] - energy_avg, energies[1] - energy_avg]
 
 
-def energy_derivatives(energy_spectrum):
+def energy_derivatives(s, energy_spectrum):
     """
     computes and returns first and second derivatives of energy spectrum
     input: energy_spectrum (array)
     output: first derivative of energy spectrum (array), second derivative of energy spectrum (array)
     """
-    s = np.linspace(0, 1, len(energy_spectrum))
-    h = s[1] - s[0]
+
     e_prime = np.gradient(energy_spectrum, s)
     e_prime_prime = second_derivative(s, energy_spectrum)
 
@@ -193,7 +193,7 @@ def landau_zener_fit(s, energies, energy_index=0):
     """
     cgi = find_cgi(energies)
 
-    e_prime, e_prime_prime = energy_derivatives(energies[energy_index])
+    e_prime, e_prime_prime = energy_derivatives(s, energies[energy_index])
     e = energies[energy_index][cgi]
     e_prime_cg = e_prime[cgi]
     e_prime_prime_cg = e_prime_prime[cgi]
@@ -233,7 +233,7 @@ def plot_spectrum_shifted(
         )
         ax.plot(
             X,
-            plot_dict["abc_coeffs"][1][k] * X - shift,
+            plot_dict["abc_coeffs"][2][k] * X - shift,
             linestyle="dotted",
             color=cols[k][2],
             alpha=0.8,
