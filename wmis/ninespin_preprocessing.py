@@ -23,6 +23,7 @@ data_fidelty = fidelity_9spin["final_overlaps"]
 # print()
 
 error = ["-0p1", "-0p05", "-0p03", "0", "0p01", "0p05", "0p1"]
+error = ["-0p075", "-0p05", "-0p025", "0", "0p025", "0p05", "0p075"]
 
 
 catalyst_strengths_rounded = [round(c, 2) for c in cats]

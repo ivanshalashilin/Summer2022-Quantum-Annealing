@@ -1,14 +1,14 @@
 from bacon_demo_LandauZener import *
 from wmis_hamiltonian import *
 
-plot_spectrum_avg = False   
-plot_spectrum_floor = False
-plot_spectrum_noshift = False
-plot_spectrum_ceiling = False
+plot_spectrum_avg = True
+plot_spectrum_floor = True
+plot_spectrum_noshift = True
+plot_spectrum_ceiling = True
 plot_lz_flag = True
 
 
-catalyst_num = 4
+catalyst_num = 7
 grain = 5000
 anneal_time = 50
 s = np.linspace(0, 1, grain)
@@ -19,9 +19,9 @@ if N == 5:
     ncats = len(catalyst_strengths)
 if N == 9:
     nine_spin = True
-    errors = [-0.075, -0.05, -0.03, 0]#, 0.01, 0.05, 0.075]
-    catalyst_strengths = [
-        1.4922*(1+error) for error in errors] 
+    errors = [-0.075, -0.05, -0.025, 0, 0.025, 0.05, 0.075]
+    error_string = [str(error).replace(".", "p") for error in errors]
+    catalyst_strengths = [1.4922 * (1 + error) for error in errors]
     ncats = len(catalyst_strengths)
     print(f"catalyst strengths: {catalyst_strengths}")
 
@@ -30,9 +30,16 @@ abc_coeffs_all = np.zeros((ncats, 3, 3))
 for i in tqdm(range(ncats)):
     abc_coeffs = np.zeros((3, 3))
 
-    Hc = H_catalyst_LZ(N, float(catalyst_strengths[i]))
-    H_LZ = ham(Hd, Hp, anneal_time, grain, Hc)
-    energies = energy_levels(H_LZ)
+    if not nine_spin:
+        Hc = H_catalyst_LZ(N, float(catalyst_strengths[i]))
+        H_LZ = ham(Hd, Hp, anneal_time, grain, Hc)
+        energies = energy_levels(H_LZ)
+
+    if nine_spin:
+        from ninespin_preprocessing import s_9spin, energies_9spin
+
+        energies = energies_9spin[i]
+        s = s_9spin
 
     cgi = find_cgi(energies)
     s_shifted = s - s[cgi]
@@ -72,13 +79,13 @@ for i in tqdm(range(ncats)):
 
     abc_coeffs_all[i] = abc_coeffs
 
-    filepath = "wmis/pub_plots/"
-    extra = "9spin" if nine_spin else "5spin"
-
+    filepath = "wmis/pub_plots/nolegend/"
+    extra = str(N) + "spin"
+    figsize = (12, 7)
     if plot_spectrum_noshift:
         # plot average
         shift = 0
-        fig, ax = plt.subplots(1, 1)
+        fig, ax = plt.subplots(1, 1, figsize=figsize)
         plot_spectrum_shifted(
             ax,
             plot_dict,
@@ -88,15 +95,15 @@ for i in tqdm(range(ncats)):
             xlabel="$X = s-s_0$",
             ylabel="$E$",
             xlim=[-0.001, 0.001],
-            ylim=[-0.05, 0.05],
+            ylim=[-0.04, 0.06],
         )
 
-        plt.savefig(f"{filepath}spectrum_{catalyst_strengths[i]}_noshift{extra}.pdf")
+        plt.savefig(f"{filepath}spectrum_{error_string[i]}_noshift{extra}.pdf")
         plt.show()
 
     if plot_spectrum_avg:
         shift = 0.5 * (energies_shifted[0] + energies_shifted[1])
-        fig, ax = plt.subplots(1, 1)
+        fig, ax = plt.subplots(1, 1, figsize=figsize)
         plot_spectrum_shifted(
             ax,
             plot_dict,
@@ -105,33 +112,33 @@ for i in tqdm(range(ncats)):
             # kwargs
             xlabel="$X = s-s_0$",
             ylabel="$E-\\bar{E}$",
-            xlim=[-0.04, 0.04],
-            ylim=[-0.04, 0.04],
+            xlim=[-0.1, 0.1],
+            ylim=[-0.04, 0.06],
         )
 
-        plt.savefig(f"{filepath}spectrum_{catalyst_strengths[i]}_avg{extra}.pdf")
+        plt.savefig(f"{filepath}spectrum_{error_string[i]}_avg{extra}.pdf")
         plt.show()
 
     if plot_spectrum_floor:
         shift = energies_shifted[0]
-        fig, ax = plt.subplots(1, 1)
+        fig, ax = plt.subplots(1, 1, figsize=figsize)
         plot_spectrum_shifted(
             ax,
             plot_dict,
             labels_dict,
             shift,
             xlabel="$X = s-s_0$",
-            ylabel="$E-\\bar{E}$",
-            xlim=[-0.023, 0.023],
-            ylim=[-0.003, 0.055],
+            ylabel="$E-E_0$",
+            xlim=[-0.1, 0.1],
+            ylim=[-0.003, 0.033],
         )
 
-        plt.savefig(f"{filepath}spectrum_{catalyst_strengths[i]}_floor{extra}.pdf")
+        plt.savefig(f"{filepath}spectrum_{error_string[i]}_floor{extra}.pdf")
         plt.show()
 
     if plot_spectrum_ceiling:
         shift = energies_shifted[1]
-        fig, ax = plt.subplots(1, 1)
+        fig, ax = plt.subplots(1, 1, figsize=figsize)
         plot_spectrum_shifted(
             ax,
             plot_dict,
@@ -139,11 +146,11 @@ for i in tqdm(range(ncats)):
             shift,
             xlabel="$X = s-s_0$",
             ylabel="$E-E_1$",
-            xlim=[-0.023, 0.023],
-            ylim=[-0.055, 0.003],
+            xlim=[-0.1, 0.1],
+            ylim=[-0.033, 0.003],
         )
 
-        plt.savefig(f"{filepath}spectrum_{catalyst_strengths[i]}_ceiling{extra}.pdf")
+        plt.savefig(f"{filepath}spectrum_{error_string[i]}_ceiling{extra}.pdf")
         plt.show()
 
 
@@ -161,7 +168,7 @@ if plot_lz_flag:
         fidelity_measured = np.array(data[2]).T
 
     cols = ["C" + str(i) for i in range(ncats)]
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(1, 1, figsize=figsize)
 
     for i in range(ncats):
         probability_theory = LandauZenerFormula(
@@ -193,7 +200,7 @@ if plot_lz_flag:
             color=cols[i],
             alpha=0.8,
             lw=1,
-            label=f"{round(catalyst_strengths[i],3)}",
+            label=f"{round(error_string[i],3)}",
         )
     ax.set(xlabel="Anneal time", ylabel="Ground state fidelity")
     ax.grid()
