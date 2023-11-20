@@ -2,7 +2,8 @@ import sys
 sys.path.append("./")
 
 from classes.bacon import bacon
-
+import numpy as np
+np.set_printoptions(precision=3)
 '''
 This is the hamiltonian for the 5 qubit system, with rescaling and mapping from the network to the ising hamiltonian
 '''
@@ -13,8 +14,8 @@ na = int((N-1)/2)
 nb = int((N+1)/2)
 W = 1
 dW = 0.01
-Jzz = 5.77
-Jxx = 0
+Jzz = 5.33 # possibly 5.33?
+#Jxx = 0
 Escale = 15
 # Get hzs and Jzz
 

@@ -1,15 +1,15 @@
 from bacon_demo_LandauZener import *
 from wmis_hamiltonian import *
 
-plot_spectrum_avg = True
-plot_spectrum_floor = True
-plot_spectrum_noshift = True
-plot_spectrum_ceiling = True
+plot_spectrum_avg = False
+plot_spectrum_floor = False
+plot_spectrum_noshift = False
+plot_spectrum_ceiling = False
 plot_lz_flag = True
 
 
 catalyst_num = 7
-grain = 5000
+grain = 1000
 anneal_time = 50
 s = np.linspace(0, 1, grain)
 
@@ -19,7 +19,12 @@ if N == 5:
     ncats = len(catalyst_strengths)
 if N == 9:
     nine_spin = True
-    errors = [-0.075, -0.05, -0.025, 0, 0.025, 0.05, 0.075]
+    errors = [
+        -0.075,
+        -0.05,
+        -0.025,
+        0,
+    ]  # 0.025, 0.05, 0.075]
     error_string = [str(error).replace(".", "p") for error in errors]
     catalyst_strengths = [1.4922 * (1 + error) for error in errors]
     ncats = len(catalyst_strengths)
@@ -40,6 +45,11 @@ for i in tqdm(range(ncats)):
 
         energies = energies_9spin[i]
         s = s_9spin
+
+        # Hc = H_catalyst_LZ(N, float(catalyst_strengths[i]))
+        # H_LZ = ham(Hd, Hp, anneal_time, grain, Hc)
+        # energies = energy_levels(H_LZ)
+        # s = np.linspace(0, 1, grain)
 
     cgi = find_cgi(energies)
     s_shifted = s - s[cgi]
@@ -80,7 +90,7 @@ for i in tqdm(range(ncats)):
     abc_coeffs_all[i] = abc_coeffs
 
     filepath = "wmis/pub_plots/nolegend/"
-    extra = str(N) + "spin"
+    extra = str(N) + "spin_5p33"
     figsize = (12, 7)
     if plot_spectrum_noshift:
         # plot average
@@ -183,27 +193,27 @@ if plot_lz_flag:
             t_anneal,
             *abc_coeffs_all[i][1],
         )
+        ax.plot(
+            t_anneal,
+            probability_theory,
+            "--",
+            color="gray",
+            alpha=0.5,
+            lw=4,
+            label=f"{error_string[i]}",
+        )
 
         ax.fill_between(
             t_anneal,
             probability_theory_upper,
             probability_theory_lower,
             color=cols[i],
-            alpha=0.4,
+            alpha=0.2,
         )
 
-        ax.plot(t_anneal, fidelity_measured[i], color=cols[i], lw=1)
-        ax.plot(
-            t_anneal,
-            probability_theory,
-            "-",
-            color=cols[i],
-            alpha=0.8,
-            lw=1,
-            label=f"{round(error_string[i],3)}",
-        )
+        ax.plot(t_anneal, fidelity_measured[i], color=cols[i], lw=1.4)
     ax.set(xlabel="Anneal time", ylabel="Ground state fidelity")
-    ax.grid()
-    ax.legend()
+    # ax.grid()
+    # ax.legend()
     # plt.savefig(f"{filepath}_lz_fidelity_{extra}.pdf")
     plt.show()
