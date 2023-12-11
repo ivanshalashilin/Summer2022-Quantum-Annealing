@@ -8,10 +8,24 @@ plot_spectrum_ceiling = False
 plot_lz_flag = True
 
 
+
+#physical parameters
+N = 9
+na = int((N-1)/2)
+nb = int((N+1)/2)
+W = 1
+dW = 0.01
+Jzz = 5.33 # possibly 5.33?
+#Jxx = 0
+Escale = 15
+# Get hzs and Jzz
+
+#simulation parameters
 catalyst_num = 7
 grain = 1000
 anneal_time = 50
 s = np.linspace(0, 1, grain)
+
 
 if N == 5:
     nine_spin = False
@@ -31,8 +45,16 @@ if N == 9:
     print(f"catalyst strengths: {catalyst_strengths}")
 
 
+spin_coeff = generate_spin_coeff(N, W, dW, Jzz)
+coupling_coeff = generate_coupling_coeff(na, nb, Jzz)
+
+H_input = bacon(N, spin_coeff, coupling_coeff)
+Hd = H_input.driver()
+Hp = H_input.problem() * Escale
+
 abc_coeffs_all = np.zeros((ncats, 3, 3))
 for i in tqdm(range(ncats)):
+    
     abc_coeffs = np.zeros((3, 3))
 
     if not nine_spin:
@@ -185,11 +207,11 @@ if plot_lz_flag:
             t_anneal,
             *abc_coeffs_all[i][2],
         )
-        probability_theory_upper = LandauZenerFormula(
+        probability_theory_gs = LandauZenerFormula(
             t_anneal,
             *abc_coeffs_all[i][0],
         )
-        probability_theory_lower = LandauZenerFormula(
+        probability_theory_fes = LandauZenerFormula(
             t_anneal,
             *abc_coeffs_all[i][1],
         )
@@ -200,20 +222,24 @@ if plot_lz_flag:
             color="gray",
             alpha=0.5,
             lw=4,
-            label=f"{error_string[i]}",
+            #label=f"{error_string[i]}",
         )
 
         ax.fill_between(
             t_anneal,
-            probability_theory_upper,
-            probability_theory_lower,
+            probability_theory_gs,
+            probability_theory_fes,
             color=cols[i],
             alpha=0.2,
         )
 
         ax.plot(t_anneal, fidelity_measured[i], color=cols[i], lw=1.4)
+        if i ==0:
+            ax.plot(t_anneal, probability_theory_gs, label="LZ GS", color="pink")
+            ax.plot(t_anneal, probability_theory_fes, label="LZ FES", color="green")
     ax.set(xlabel="Anneal time", ylabel="Ground state fidelity")
+    
     # ax.grid()
-    # ax.legend()
+    ax.legend()
     # plt.savefig(f"{filepath}_lz_fidelity_{extra}.pdf")
     plt.show()

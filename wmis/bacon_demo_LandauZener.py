@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 from scipy.signal import find_peaks
-from wmis_hamiltonian import Hd, Hp
+from wmis_hamiltonian import *
 from matplotlib.ticker import ScalarFormatter, FuncFormatter, MultipleLocator
 
 
@@ -85,8 +85,11 @@ def find_cgi(energies):
     """
     # find the location of the closing gap
     Delta_E = energies[1] - energies[0]
-    gap_index = find_peaks(-Delta_E)[0][0]
-    return gap_index
+    try:
+        gap_index = find_peaks(-Delta_E)[0][0]
+        return gap_index
+    except IndexError:
+        return 0
 
 
 def energy_levels(Hs: ham):
@@ -264,3 +267,12 @@ def plot_spectrum_shifted(
         ax.set_ylabel(kwargs["ylabel"], loc="center")
 
     ax.grid()
+
+
+def split_array_at_max(s, Epp):
+    '''
+    splits array at maximum point
+    '''
+
+    max_index = np.argmax(np.abs(Epp))
+    return [s[:max_index], s[max_index:]], [Epp[:max_index], Epp[max_index:]]
