@@ -230,7 +230,7 @@ def plot_spectrum_shifted(
             plot_dict["energies"][k] - shift,
             color=cols[k][0],
             label=labels_dict["energy"][k],
-            linewidth = linewidth
+            linewidth=linewidth,
         )
         ax.plot(
             X,
@@ -238,7 +238,7 @@ def plot_spectrum_shifted(
             color=cols[k][1],
             linestyle="--",
             label=labels_dict["lz"][k],
-            linewidth = linewidth
+            linewidth=linewidth,
         )
         ax.plot(
             X,
@@ -247,7 +247,7 @@ def plot_spectrum_shifted(
             color=cols[k][2],
             alpha=0.8,
             label=labels_dict["linear"][k],
-            linewidth = linewidth
+            linewidth=linewidth,
         )
         ax.fill_between(
             X,
@@ -255,7 +255,6 @@ def plot_spectrum_shifted(
             plot_dict["abc_coeffs"][1][k] * X - shift,
             color=cols[k][3],
             alpha=0.4,
-
         )
     ax.ticklabel_format(style="sci", axis="x", scilimits=(0, 0))
 
@@ -270,9 +269,22 @@ def plot_spectrum_shifted(
 
 
 def split_array_at_max(s, Epp):
-    '''
+    """
     splits array at maximum point
-    '''
+    """
 
     max_index = np.argmax(np.abs(Epp))
     return [s[:max_index], s[max_index:]], [Epp[:max_index], Epp[max_index:]]
+
+
+def split_array_at_cat(s, Epp, cat):
+    """
+    splits array at maximum point
+    """
+
+    max_index = np.where(s < cat)[0][-1] + 1
+    return [s[:max_index], s[max_index:]], [Epp[:max_index], Epp[max_index:]]
+
+
+def fl_to_str(float):
+    return str(float).replace(".", "p")

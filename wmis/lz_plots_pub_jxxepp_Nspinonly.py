@@ -4,23 +4,23 @@ from wmis_hamiltonian import *
 plot_flag = True
 
 # physical parameters
-N = 5
+N = 7
 na = int((N - 1) / 2)
 nb = int((N + 1) / 2)
 W = 1
 dW = 0.01
-Jzz = 5.77  # possibly 5.33?
+Jzz = 5.33  # possibly 5.33?
 # Jxx = 0
 Escale = 15
 # Get hzs and Jzz
 
 # simulation parameters
 catalyst_num = 7
-grain = 10000
+grain = 1000
 anneal_time = 50
 s = np.linspace(0, 1, grain)
 
-catalyst_strengths = np.linspace(1.85, 1.89, 40)
+catalyst_strengths = np.linspace(1.6, 1.65, 20)
 ncats = len(catalyst_strengths)
 Epp_all = np.zeros((2, ncats))
 
@@ -31,6 +31,7 @@ coupling_coeff = generate_coupling_coeff(na, nb, Jzz_rescaled)
 H_input = bacon(N, spin_coeff, coupling_coeff)
 Hd = H_input.driver()
 Hp = H_input.problem() * Escale
+filename = "Epp_all_"+str(N)+"spin_533jxx.npy"
 
 if plot_flag:
     # catalyst_strengths = np.linspace(1.75,2.0, 100)
@@ -38,7 +39,7 @@ if plot_flag:
 
     formatter = ScalarFormatter(useMathText=True)
     formatter.set_powerlimits((-2, 3))
-    Epp_all = np.load("Epp_all_5spin_highres.npy")
+    Epp_all = np.load(filename)
     fig, ax = plt.subplots(1, 2, figsize=(11, 6))
     colors = ["C0", "C1"]
 
@@ -46,11 +47,12 @@ if plot_flag:
         split_cat, split_Epp = split_array_at_max(catalyst_strengths, Epp_all[i])
         ax[i].plot(split_cat[0], split_Epp[0], "x", lw=2, color=colors[i])
         ax[i].plot(split_cat[1], split_Epp[1], "x", lw=2, color=colors[i])
+        ax[i].vlines(1.619,ymin = 0,ymax = (-1)**(i+1)*np.max(Epp_all), color = "k", linestyle = "--")
         ax[i].yaxis.set_major_formatter(formatter)
 
     ax[0].set_ylabel(r"$E^{\prime\prime}_0(J_{xx})$")
     ax[1].set_ylabel(r"$E^{\prime\prime}_1(J_{xx})$")
-    ax[1].set_xlabel(r"$J_{xx}$ (5 spin)")
+    ax[1].set_xlabel(r"$J_{xx}$ (7 spin)")
     fig.tight_layout()
 
     plt.show()
@@ -83,4 +85,4 @@ for i in tqdm(range(ncats)):
     # store the 2nd derivative at the CGI
     Epp_all[:, i] = E_params
 
-np.save("Epp_all_5spin_highres.npy", Epp_all)
+np.save(filename, Epp_all)

@@ -45,8 +45,8 @@ if N == 9:
     print(f"catalyst strengths: {catalyst_strengths}")
 
 
-spin_coeff = generate_spin_coeff(N, W, dW, Jzz)
-coupling_coeff = generate_coupling_coeff(na, nb, Jzz)
+spin_coeff, Jzz_rescaled = generate_spin_coeff(N, W, dW, Jzz)
+coupling_coeff = generate_coupling_coeff(na, nb, Jzz_rescaled)
 
 H_input = bacon(N, spin_coeff, coupling_coeff)
 Hd = H_input.driver()
@@ -63,10 +63,9 @@ for i in tqdm(range(ncats)):
         energies = energy_levels(H_LZ)
 
     if nine_spin:
-        from ninespin_preprocessing import s_9spin, energies_9spin
-
-        energies = energies_9spin[i]
-        s = s_9spin
+        Hc = H_catalyst_LZ(N, float(catalyst_strengths[i]))
+        H_LZ = ham(Hd, Hp, anneal_time, grain, Hc)
+        energies = energy_levels(H_LZ)
 
         # Hc = H_catalyst_LZ(N, float(catalyst_strengths[i]))
         # H_LZ = ham(Hd, Hp, anneal_time, grain, Hc)
