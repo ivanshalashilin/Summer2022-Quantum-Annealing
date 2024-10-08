@@ -1,6 +1,27 @@
 from bacon_demo_LandauZener import *
 from wmis_hamiltonian import *
 
+'''
+LZ plots for 5 and 9 spin cases
+
+Computes STATIC spectrum E_0(s) and E_1(s), and determines theoretical LZ plots 
+different catalyst strengths using the static sepctrum
+
+Plots:
+
+1. Static spectrum E_0(s) and E_1(s) for different catalyst strengths (plot_spectrum_noshift)
+2. Static spectrum E(s) - <E> for different catalyst strengths (plot_spectrum_avg)
+3. Static spectrum E(s) - E_0 for different catalyst strengths (plot_spectrum_floor)
+4. Static spectrum E(s) - E_1 for different catalyst strengths (plot_spectrum_ceiling)
+
+5. LZ plots for different catalyst strengths (plot_lz_flag) compared to
+   experimental/computational data
+
+Equation numbers in commments refer to the writeup pdf pushed with this code
+
+'''
+
+compute = True
 plot_spectrum_avg = False
 plot_spectrum_floor = False
 plot_spectrum_noshift = False
@@ -8,21 +29,20 @@ plot_spectrum_ceiling = False
 plot_lz_flag = True
 
 
-
-#physical parameters
+# physical parameters
 N = 9
-na = int((N-1)/2)
-nb = int((N+1)/2)
+na = int((N - 1) / 2)
+nb = int((N + 1) / 2)
 W = 1
 dW = 0.01
-Jzz = 5.33 # possibly 5.33?
-#Jxx = 0
+Jzz = 5.33  # possibly 5.33?
+# Jxx = 0
 Escale = 15
 # Get hzs and Jzz
 
-#simulation parameters
+# simulation parameters
 catalyst_num = 7
-grain = 1000
+grain = 100
 anneal_time = 50
 s = np.linspace(0, 1, grain)
 
@@ -52,154 +72,165 @@ H_input = bacon(N, spin_coeff, coupling_coeff)
 Hd = H_input.driver()
 Hp = H_input.problem() * Escale
 
-abc_coeffs_all = np.zeros((ncats, 3, 3))
-for i in tqdm(range(ncats)):
+
+if compute:
+    abc_coeffs_all = np.zeros((ncats, 3, 3))
+    for i in tqdm(range(ncats)):
+
+        abc_coeffs = np.zeros((3, 3))
+
+        if not nine_spin:
+            Hc = H_catalyst_LZ(N, float(catalyst_strengths[i]))
+            H_LZ = ham(Hd, Hp, anneal_time, grain, Hc)
+            energies = energy_levels(H_LZ)
+
+        if nine_spin:
+            Hc = H_catalyst_LZ(N, float(catalyst_strengths[i]))
+            H_LZ = ham(Hd, Hp, anneal_time, grain, Hc)
+            energies = energy_levels(H_LZ)
+
+
+
+        cgi = find_cgi(energies)
+
+        #shift energies s.t. closing gap is at (0,0)
+        s_shifted = s - s[cgi]
+        energies_shifted = centre_energies(energies)
+
+        # store landau zener fits
+        lz_fits = []
+        # energy, derivative and 2nd derivative
+        E_params = []
+        # Obtain LZ coefficients using E_0(s) and E_1(s). 
+        # Discrepancy between coeffs used for E_0(s) and E_1(s)? Unsure
+        #j = 0 for E_0(s), j = 1 for E_1(s)
+        for j in range(2):
+            LZ_fit = landau_zener_fit(s_shifted, energies_shifted, j) #hyperbolic fit eqn (5)
+            lz_fits.append(LZ_fit)
+            #obtain energy derivatives from the plot using finite differences eqns(6-8)
+            E_prime, E_prime_prime = energy_derivatives(s_shifted, energies_shifted[j]) 
+            E_params.append(
+                [energies_shifted[j][cgi], E_prime[cgi], E_prime_prime[cgi]]
+            ) #append energy, first derivative, second derivative
+            abc_coeffs[j] = np.array(
+                [A_coeff(*E_params[j]), B_coeff(*E_params[j]), E_params[j][0]]
+            ) # append ABC coefficients using equation (9)
+
+        # append average
+        abc_coeffs[2] = np.array(
+            [*np.average(abc_coeffs[:-1], axis=0)[:-1], energies_shifted[j][cgi]]
+        )
+
+        # subtract ground state energy
+        plot_dict = {
+            "X": s_shifted,
+            "energies": energies_shifted,
+            "lz": lz_fits,
+            "abc_coeffs": abc_coeffs,
+        }
+        labels_dict = {
+            "energy": ["Ground state", "First excited state"],
+            "lz": ["LZ fit GS", "LZ fit FES"],
+            "linear": [None, "$AX, BX$"],
+        }
+
+        abc_coeffs_all[i] = abc_coeffs
+
+        filepath = "wmis/pub_plots/nolegend/"
+        extra = str(N) + "spin_5p33"
+        figsize = (12, 7)
+
+        if plot_spectrum_noshift:
+            # plot average
+            shift = 0
+            fig, ax = plt.subplots(1, 1, figsize=figsize)
+            plot_spectrum_shifted(
+                ax,
+                plot_dict,
+                labels_dict,
+                shift,
+                # kwargs
+                xlabel="$X = s-s_0$",
+                ylabel="$E$",
+                xlim=[-0.001, 0.001],
+                ylim=[-0.04, 0.06],
+            )
+
+            plt.savefig(f"{filepath}spectrum_{error_string[i]}_noshift{extra}.pdf")
+            plt.show()
+
+        if plot_spectrum_avg:
+            shift = 0.5 * (energies_shifted[0] + energies_shifted[1])
+            fig, ax = plt.subplots(1, 1, figsize=figsize)
+            plot_spectrum_shifted(
+                ax,
+                plot_dict,
+                labels_dict,
+                shift,
+                # kwargs
+                xlabel="$X = s-s_0$",
+                ylabel="$E-\\bar{E}$",
+                xlim=[-0.1, 0.1],
+                ylim=[-0.04, 0.06],
+            )
+
+            plt.savefig(f"{filepath}spectrum_{error_string[i]}_avg{extra}.pdf")
+            plt.show()
+
+        if plot_spectrum_floor:
+            shift = energies_shifted[0]
+            fig, ax = plt.subplots(1, 1, figsize=figsize)
+            plot_spectrum_shifted(
+                ax,
+                plot_dict,
+                labels_dict,
+                shift,
+                xlabel="$X = s-s_0$",
+                ylabel="$E-E_0$",
+                xlim=[-0.1, 0.1],
+                ylim=[-0.003, 0.033],
+            )
+
+            plt.savefig(f"{filepath}spectrum_{error_string[i]}_floor{extra}.pdf")
+            plt.show()
+
+        if plot_spectrum_ceiling:
+            shift = energies_shifted[1]
+            fig, ax = plt.subplots(1, 1, figsize=figsize)
+            plot_spectrum_shifted(
+                ax,
+                plot_dict,
+                labels_dict,
+                shift,
+                xlabel="$X = s-s_0$",
+                ylabel="$E-E_1$",
+                xlim=[-0.1, 0.1],
+                ylim=[-0.033, 0.003],
+            )
+
+            plt.savefig(f"{filepath}spectrum_{error_string[i]}_ceiling{extra}.pdf")
+            plt.show()
     
-    abc_coeffs = np.zeros((3, 3))
-
-    if not nine_spin:
-        Hc = H_catalyst_LZ(N, float(catalyst_strengths[i]))
-        H_LZ = ham(Hd, Hp, anneal_time, grain, Hc)
-        energies = energy_levels(H_LZ)
-
-    if nine_spin:
-        Hc = H_catalyst_LZ(N, float(catalyst_strengths[i]))
-        H_LZ = ham(Hd, Hp, anneal_time, grain, Hc)
-        energies = energy_levels(H_LZ)
-
-        # Hc = H_catalyst_LZ(N, float(catalyst_strengths[i]))
-        # H_LZ = ham(Hd, Hp, anneal_time, grain, Hc)
-        # energies = energy_levels(H_LZ)
-        # s = np.linspace(0, 1, grain)
-
-    cgi = find_cgi(energies)
-    s_shifted = s - s[cgi]
-    energies_shifted = centre_energies(energies)
-
-    # store landau zener fits
-    lz_fits = []
-    # energy, derivative and 2nd derivative
-    E_params = []
-
-    for j in range(2):
-        LZ_fit = landau_zener_fit(s_shifted, energies_shifted, j)
-        lz_fits.append(LZ_fit)
-        E_prime, E_prime_prime = energy_derivatives(s_shifted, energies_shifted[j])
-        E_params.append([energies_shifted[j][cgi], E_prime[cgi], E_prime_prime[cgi]])
-        abc_coeffs[j] = np.array(
-            [A_coeff(*E_params[j]), B_coeff(*E_params[j]), E_params[j][0]]
-        )
-
-    # append average
-    abc_coeffs[2] = np.array(
-        [*np.average(abc_coeffs[:-1], axis=0)[:-1], energies_shifted[j][cgi]]
-    )
-
-    # subtract ground state energy
-    plot_dict = {
-        "X": s_shifted,
-        "energies": energies_shifted,
-        "lz": lz_fits,
-        "abc_coeffs": abc_coeffs,
-    }
-    labels_dict = {
-        "energy": ["Ground state", "First excited state"],
-        "lz": ["LZ fit GS", "LZ fit FES"],
-        "linear": [None, "$AX, BX$"],
-    }
-
-    abc_coeffs_all[i] = abc_coeffs
-
-    filepath = "wmis/pub_plots/nolegend/"
-    extra = str(N) + "spin_5p33"
-    figsize = (12, 7)
-    if plot_spectrum_noshift:
-        # plot average
-        shift = 0
-        fig, ax = plt.subplots(1, 1, figsize=figsize)
-        plot_spectrum_shifted(
-            ax,
-            plot_dict,
-            labels_dict,
-            shift,
-            # kwargs
-            xlabel="$X = s-s_0$",
-            ylabel="$E$",
-            xlim=[-0.001, 0.001],
-            ylim=[-0.04, 0.06],
-        )
-
-        plt.savefig(f"{filepath}spectrum_{error_string[i]}_noshift{extra}.pdf")
-        plt.show()
-
-    if plot_spectrum_avg:
-        shift = 0.5 * (energies_shifted[0] + energies_shifted[1])
-        fig, ax = plt.subplots(1, 1, figsize=figsize)
-        plot_spectrum_shifted(
-            ax,
-            plot_dict,
-            labels_dict,
-            shift,
-            # kwargs
-            xlabel="$X = s-s_0$",
-            ylabel="$E-\\bar{E}$",
-            xlim=[-0.1, 0.1],
-            ylim=[-0.04, 0.06],
-        )
-
-        plt.savefig(f"{filepath}spectrum_{error_string[i]}_avg{extra}.pdf")
-        plt.show()
-
-    if plot_spectrum_floor:
-        shift = energies_shifted[0]
-        fig, ax = plt.subplots(1, 1, figsize=figsize)
-        plot_spectrum_shifted(
-            ax,
-            plot_dict,
-            labels_dict,
-            shift,
-            xlabel="$X = s-s_0$",
-            ylabel="$E-E_0$",
-            xlim=[-0.1, 0.1],
-            ylim=[-0.003, 0.033],
-        )
-
-        plt.savefig(f"{filepath}spectrum_{error_string[i]}_floor{extra}.pdf")
-        plt.show()
-
-    if plot_spectrum_ceiling:
-        shift = energies_shifted[1]
-        fig, ax = plt.subplots(1, 1, figsize=figsize)
-        plot_spectrum_shifted(
-            ax,
-            plot_dict,
-            labels_dict,
-            shift,
-            xlabel="$X = s-s_0$",
-            ylabel="$E-E_1$",
-            xlim=[-0.1, 0.1],
-            ylim=[-0.033, 0.003],
-        )
-
-        plt.savefig(f"{filepath}spectrum_{error_string[i]}_ceiling{extra}.pdf")
-        plt.show()
-
+    np.save("abc_coeffs_ninspin.npy", abc_coeffs_all)
 
 if plot_lz_flag:
     # perform landau zener fit
     if nine_spin:
+
         from ninespin_preprocessing import data_fidelty, T_9spin
 
         fidelity_measured = data_fidelty
         t_anneal = T_9spin
+        abc_coeffs_all = np.load("abc_coeffs_ninspin.npy", allow_pickle=True)
+        
     else:
         pickle_in = open("2d_s_2_3__t_1e-1_10000__j_175e-2_20e-1.pkl", "rb")
         data = pickle.load(pickle_in)
         t_anneal = data[1]
         fidelity_measured = np.array(data[2]).T
 
-    cols = ["C" + str(i) for i in range(ncats)]
-    fig, ax = plt.subplots(1, 1, figsize=figsize)
+    cols = ["C3" , "C2", "C1", "C0"]
+    fig, ax = plt.subplots(1, 1)
 
     for i in range(ncats):
         probability_theory = LandauZenerFormula(
@@ -221,7 +252,7 @@ if plot_lz_flag:
             color="gray",
             alpha=0.5,
             lw=4,
-            #label=f"{error_string[i]}",
+            # label=f"{error_string[i]}",
         )
 
         ax.fill_between(
@@ -233,12 +264,12 @@ if plot_lz_flag:
         )
 
         ax.plot(t_anneal, fidelity_measured[i], color=cols[i], lw=1.4)
-        if i ==0:
-            ax.plot(t_anneal, probability_theory_gs, label="LZ GS", color="pink")
-            ax.plot(t_anneal, probability_theory_fes, label="LZ FES", color="green")
-    ax.set(xlabel="Anneal time", ylabel="Ground state fidelity")
-    
+        # if i ==0:
+        #     ax.plot(t_anneal, probability_theory_gs, label="LZ GS", color="pink")
+        #     ax.plot(t_anneal, probability_theory_fes, label="LZ FES", color="green")
+    ax.set(xlabel="Total anneal time", ylabel="Final ground state fidelity")
+
     # ax.grid()
-    ax.legend()
+    # ax.legend()
     # plt.savefig(f"{filepath}_lz_fidelity_{extra}.pdf")
     plt.show()

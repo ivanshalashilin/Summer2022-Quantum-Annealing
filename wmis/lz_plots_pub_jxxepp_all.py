@@ -22,6 +22,8 @@ grain = 1000
 anneal_time = 50
 s = np.linspace(0, 1, grain)
 ncats = 50
+
+#CHANGE THIS FILEPATH
 filepath = "wmis/epp_data/"
 
 if plot_flag:
@@ -67,7 +69,7 @@ if plot_flag:
         fig.tight_layout()
 
         plt.savefig("wmis/pub_plots/epp_jxx/"+filename[:-4]+".pdf")
-        plt.show()
+        plt.show()  
 
 for i in range(len(N)):
     # catalyst strengths

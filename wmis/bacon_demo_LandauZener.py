@@ -14,9 +14,9 @@ from wmis_hamiltonian import *
 from matplotlib.ticker import ScalarFormatter, FuncFormatter, MultipleLocator
 
 
-import mplhep as hep
+# import mplhep as hep
 
-hep.style.use("CMS")
+# hep.style.use("CMS")
 
 np.set_printoptions(precision=5)
 
@@ -31,6 +31,9 @@ demo of custom hamiltonians with bacon class
 
 
 def H_catalyst_LZ(N, catalyst_strength):
+    '''
+    Constructs the catalyst Hamiltonian for the Landau-Zener problem
+    '''
     return catalyst_strength * qt.tensor(
         *[qt.qeye(2) for i in range(N - 2)], qt.sigmax(), qt.sigmax()
     )
@@ -139,13 +142,19 @@ def energy_derivatives(s, energy_spectrum):
 
 
 def second_derivative(s, e):
-    h = s[1] - s[0]
+    """
+    computes the second derivative using finite differences
+    input: timestep array s (array), energy spectrum e (array)
+    """
+
+    h = s[1] - s[0] # interval
     # inexact second derivative for boundary points (ok because not used)
-    e_pp_mid = np.gradient(np.gradient(e, s), s)
-    e_prime_prime = (np.roll(e, -1) + np.roll(e, 1) - 2 * e) / h**2
+    e_pp_for_bps = np.gradient(np.gradient(e, s), s)
+    # finite differnce f``(x) ≈ (f(x+h) + f(x-h) - 2f(x))/h^2
+    e_prime_prime = (np.roll(e, -1) + np.roll(e, 1) - 2 * e) / h**2 
     # substitute boundary points
-    e_prime_prime[0] = e_pp_mid[0]
-    e_prime_prime[-1] = e_pp_mid[-1]
+    e_prime_prime[0] = e_pp_for_bps[0]
+    e_prime_prime[-1] = e_pp_for_bps[-1]
     return e_prime_prime
 
 
@@ -189,7 +198,10 @@ def error_a_coeffs(
 
 def landau_zener_fit(s, energies, energy_index=0):
     """
-    finds the first order Landau Zener function for a given energy level, determined by derivatives
+    finds the first order Landau Zener function for a given energy level, determined by
+    derivatives
+    
+    For a 2-level system
 
     input: ground state and first excited state (list), (array), first derivative of energy spectrum (array), second
     derivative of energy spectrum (array), index of closing gap (int), ground or first excited state (int)
